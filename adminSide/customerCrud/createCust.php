@@ -34,11 +34,52 @@ function getNextAvailableMemberID($conn) {
     return $next_member_id;
 }
 
+
+
+
 // Get the next available Member ID
 $next_member_id = getNextAvailableMemberID($link);
 
 // Get the next available account ID
 $next_account_id = getNextAvailableAccountID($link);
+
+
+// Check if form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Validate email to ensure it's not already in the database
+    $email = trim($_POST["email"]);
+    $sql = "SELECT account_id FROM Accounts WHERE email = ?";
+    
+    if ($stmt = mysqli_prepare($link, $sql)) {
+        // Bind variables to the prepared statement as parameters
+        mysqli_stmt_bind_param($stmt, "s", $param_email);
+
+        // Set the parameter
+        $param_email = $email;
+
+        // Attempt to execute the prepared statement
+        if (mysqli_stmt_execute($stmt)) {
+            // Store result to check if email exists
+            mysqli_stmt_store_result($stmt);
+            if (mysqli_stmt_num_rows($stmt) > 0) {
+                $email_err = "This email is already registered.";
+            }
+        } else {
+            echo "Something went wrong. Please try again later.";
+        }
+        // Close the statement
+        mysqli_stmt_close($stmt);
+    }
+    
+    // Proceed to the next page only if there are no errors
+    if (empty($email_err)) {
+        // If no email error, redirect to the success page
+        header("Location: success_createMembership.php");
+        exit(); // Terminate the script to prevent further execution
+    }
+}
+
+
 ?>
 <head>
     <meta charset="UTF-8">
@@ -118,12 +159,17 @@ $next_account_id = getNextAvailableAccountID($link);
         </div>
         
         <div class="form-group">
-            <label for="email" class="form-label">Email :</label>
-            <input type="text" name="email" placeholder="johnny12@dining.bar.com" class="form-control <?php echo !$emailErr ?: 'is-invalid'; ?>" id="email" required value="<?php echo $email; ?>"><br>
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" name="email" placeholder="johnny12@dining.bar.com" 
+                class="form-control <?php echo !empty($email_err) ? 'is-invalid' : ''; ?>" 
+                id="email" required value="<?php echo htmlspecialchars($email); ?>" 
+                onblur="checkEmailAvailability()"><br>
             <div id="validationServerFeedback" class="invalid-feedback">
-                Please provide a valid email.
+                <?php echo $email_err; ?> <!-- Display error message if email already exists -->
             </div>
+            <small id="emailStatus"></small> <!-- Placeholder for AJAX feedback -->
         </div>
+        
 
         <div class="form-group">
             <label for="register_date">Register Date :</label>
@@ -143,16 +189,53 @@ $next_account_id = getNextAvailableAccountID($link);
 
         <div class="form-group">
             <label for="password">Password :</label>
-            <input type="password" name="password" placeholder="johnny1234@" id="password" required class="form-control <?php echo !$password_err ?: 'is-invalid' ; ?>" value="<?php echo $password; ?>"><br>
+            <input type="password" name="password" placeholder="Enter a strong password" id="password" 
+                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}" 
+                title="Password must be at least 8 characters long, contain at least one number, one uppercase letter, one lowercase letter, and one special character." 
+                required 
+                class="form-control <?php echo !$password_err ?: 'is-invalid' ; ?>" 
+                value="<?php echo $password; ?>"><br>
             <div id="validationServerFeedback" class="invalid-feedback">
                 Please provide a valid password.
             </div>
         </div>
         
         <div class="form-group mb-5">
-            <input type="submit" name="submit" class="btn btn-dark" value="Create Membership">
+            <input type="submit" name="submit" class="btn btn-dark" value="Create Membership" id="submitBtn" disabled> <!-- Disable initially -->
         </div>
     </form>
 </div>
+
+<script>
+    function checkEmailAvailability() {
+        var email = document.getElementById("email").value;
+
+        // Create an XMLHttpRequest object
+        var xhr = new XMLHttpRequest();
+
+        // Define the request to the server-side script
+        xhr.open("POST", "checkEmail.php", true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        // What to do when the response returns
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                // Get the response text (which is what the PHP will echo)
+                var responseText = xhr.responseText;
+                document.getElementById("emailStatus").innerHTML = responseText;
+
+                // If email is available, enable the submit button
+                if (responseText.trim() === "Email is available.") {
+                    document.getElementById("submitBtn").disabled = false;
+                } else {
+                    document.getElementById("submitBtn").disabled = true; // Keep disabled if email exists
+                }
+            }
+        };
+
+        // Send the request, passing the email value
+        xhr.send("email=" + encodeURIComponent(email));
+    }
+</script>
 
 <?php include '../inc/dashFooter.php'; ?>

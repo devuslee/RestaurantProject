@@ -67,7 +67,7 @@ require_once '../posBackend/checkIfLoggedIn.php';
                         echo "<th>Email</th>";
                         echo "<th>Register Date</th>";
                         echo "<th>Phone Number</th>";
-                        echo "<th>Password</th>";
+                        // echo "<th>Password</th>";
                         //echo "<th>Account Type</th>"; // Display account type
                        // echo "<th>Delete</th>";
                         echo "</tr>";
@@ -79,7 +79,7 @@ require_once '../posBackend/checkIfLoggedIn.php';
                             echo "<td>" . $row['email'] . "</td>";
                             echo "<td>" . $row['register_date'] . "</td>";
                             echo "<td>" . $row['phone_number'] . "</td>";
-                            echo "<td>" . $row['password'] . "</td>";
+                            // echo "<td>" . $row['password'] . "</td>";
                             //echo "<td>" . ucfirst($row['account_type']) . "</td>"; // Display account type
                           //  echo "<td>";
                           //  $deleteSQL = "DELETE FROM Accounts WHERE account_id = '" . $row['account_id'] . "';";

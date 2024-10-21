@@ -4,12 +4,34 @@ session_start(); // Ensure session is started
 <?php
 require_once "../config.php";
 
+$provided_account_id =  "";
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // User-provided input
-    $provided_account_id = $_POST['account_id'];
-    $provided_password = $_POST['password'];
+    $provided_staff_id = $_POST['account_id'];
+
+    // Check if password is provided
+    if (empty(trim($_POST["password"]))) {
+        $provided_password = "Please enter your password.";
+    } else {
+        $provided_password = trim($_POST["password"]);
+    }
+
+    // Query to fetch staff record based on provided staff_id
+    $test_query = "SELECT * FROM Staffs WHERE staff_id = '$provided_staff_id'";
+    $test_result = $link->query($test_query);
+
+    if ($test_result->num_rows === 1) {
+        $row = $test_result->fetch_assoc(); 
+        $provided_account_id = $row['account_id']; 
+    } else {
+        $message = "Staff ID not found.<br>Please try again to choose a correct Staff ID.";
+        $iconClass = "fa-times-circle";
+        $cardClass = "alert-danger";
+        $bgColor = "#FFA7A7"; // Custom background color for error
+        $direction = "login.php"; // Fail, go back to login
+    }
 
     // Query to fetch staff record based on provided account_id
     $query = "SELECT * FROM Accounts WHERE account_id = '$provided_account_id'";
@@ -19,54 +41,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $row = $result->fetch_assoc();
         $stored_password = $row['password'];
 
-        if ($provided_password === $stored_password) {
-        // Password matches, login successful
+        if (password_verify($provided_password, $stored_password)) {
+            // Password matches, login successful
 
-        // Check if the account_id exists in the Staffs table
-        $staff_query = "SELECT * FROM Staffs WHERE account_id = '$provided_account_id'";
-        $staff_result = $link->query($staff_query);
+            // Check if the account_id exists in the Staffs table
+            $staff_query = "SELECT * FROM Staffs WHERE account_id = '$provided_account_id'";
+            $staff_result = $link->query($staff_query);
 
-        if ($staff_result->num_rows === 1) {
-            $staff_row = $staff_result->fetch_assoc();
-            $logged_staff_name = $staff_row['staff_name']; // Get staff_name
-            //$message = "Login successful.<br> Welcome to Johnny's Staff Panel.";
-            //$iconClass = "fa-check-circle";
-            //$cardClass = "alert-success";
-            //$bgColor = "#D4F4DD";
-            //$direction = "../panel/pos-panel.php"; // Success, go to staff panel
-            
-            // After successful login, store staff_name in session
-            $_SESSION['logged_account_id'] = $provided_account_id;
-            $_SESSION['logged_staff_name'] = $logged_staff_name;
-            
-            //Directly go to the pos panel upon successful login
-            header("Location: ../panel/pos-panel.php");
-            exit;
-            
-        } else {
-            // Staff ID not found in Staffs table
-            $message = "Staff ID not found.<br>Please try again to choose a correct Staff ID.";
-            $iconClass = "fa-times-circle";
-            $cardClass = "alert-danger";
-            $bgColor = "#FFA7A7"; // Custom background color for error
-            $direction = "login.php"; // Fail, go back to login
+            if ($staff_result->num_rows === 1) {
+                $staff_row = $staff_result->fetch_assoc();
+                $logged_staff_name = $staff_row['staff_name']; // Get staff_name
+                
+                // After successful login, store staff_name in session
+                $_SESSION['logged_account_id'] = $provided_account_id;
+                $_SESSION['logged_staff_name'] = $logged_staff_name;
+
+                // Directly go to the pos panel upon successful login
+                header("Location: ../panel/pos-panel.php");
+                exit;
+            } else {
+                // Staff ID not found in Staffs table
+                $message = "Staff ID not found.<br>Please try again to choose a correct Staff ID.";
+                $iconClass = "fa-times-circle";
+                $cardClass = "alert-danger";
+                $bgColor = "#FFA7A7"; // Custom background color for error
+                $direction = "login.php"; // Fail, go back to login
             }      
-            
         } else {
+            // Incorrect password
             $message = "Incorrect password.<br>Please try again to type your password.";
             $iconClass = "fa-times-circle";
             $cardClass = "alert-danger";
             $bgColor = "#FFA7A7"; // Custom background color for error
-            $direction = "login.php"; //Fail back to login
+            $direction = "login.php"; // Fail back to login
         }
     } else {
+        // Account ID not found
         $message = "Staff ID not found.<br>Please try again to choose a correct Staff ID.";
         $iconClass = "fa-times-circle";
         $cardClass = "alert-danger";
         $bgColor = "#FFA7A7";
-        $direction = "login.php"; //Fail back to login
+        $direction = "login.php"; // Fail back to login
     }
 }
+
 
 // Close the database connection
 $link->close();

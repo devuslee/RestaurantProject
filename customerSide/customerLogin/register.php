@@ -52,6 +52,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = trim($_POST["password"]);
     }
 
+    if (empty(trim($_POST["password"]))) {
+        $password_err = "Please enter a password.";
+    } elseif (strlen(trim($_POST["password"])) < 8) {
+        $password_err = "Password must have at least 8 characters.";
+    } elseif (!preg_match('/[A-Z]/', trim($_POST["password"]))) {
+        $password_err = "Password must contain at least one uppercase letter.";
+    } elseif (!preg_match('/[a-z]/', trim($_POST["password"]))) {
+        $password_err = "Password must contain at least one lowercase letter.";
+    } elseif (!preg_match('/[0-9]/', trim($_POST["password"]))) {
+        $password_err = "Password must contain at least one number.";
+    } elseif (!preg_match('/[\W]/', trim($_POST["password"]))) {
+        $password_err = "Password must contain at least one special character.";
+    } else {
+        // Hash the password using bcrypt
+        $password = password_hash(trim($_POST["password"]), PASSWORD_BCRYPT);
+    }
+
     // Validate phone number
     if (empty(trim($_POST["phone_number"]))) {
         $phone_number_err = "Please enter your phone number.";

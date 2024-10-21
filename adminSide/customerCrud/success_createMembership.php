@@ -15,6 +15,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST["password"];
     $conn = $link;
 
+    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
     // Start a transaction to ensure consistency across multiple table inserts
     $conn->begin_transaction();
 
@@ -22,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Insert Data into Accounts Table
         $insert_account_query = "INSERT INTO Accounts (account_id, email, register_date, phone_number, password) VALUES (?, ?, ?, ?, ?)";
         $stmt_account = $conn->prepare($insert_account_query);
-        $stmt_account->bind_param("issss", $account_id, $email, $register_date, $phone_number, $password);
+        $stmt_account->bind_param("issss", $account_id, $email, $register_date, $phone_number, $hashed_password);
 
         // Execute the query to insert data into Accounts table
         if (!$stmt_account->execute()) {
