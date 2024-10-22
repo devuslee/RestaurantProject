@@ -1,10 +1,8 @@
 <?php
 session_start(); // Ensure session is started
-?>
-<?php
 require_once "../config.php";
 
-$provided_account_id =  "";
+$provided_account_id = "";
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -18,9 +16,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $provided_password = trim($_POST["password"]);
     }
 
-    // Query to fetch staff record based on provided staff_id
-    $test_query = "SELECT * FROM Staffs WHERE staff_id = '$provided_staff_id'";
-    $test_result = $link->query($test_query);
+    $stmt = $link->prepare("SELECT * FROM Staffs WHERE staff_id = ?");
+    $stmt->bind_param("s", $provided_staff_id);
+    $stmt->execute();
+    $test_result = $stmt->get_result();
 
     if ($test_result->num_rows === 1) {
         $row = $test_result->fetch_assoc(); 
@@ -32,10 +31,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $bgColor = "#FFA7A7"; // Custom background color for error
         $direction = "login.php"; // Fail, go back to login
     }
-
-    // Query to fetch staff record based on provided account_id
-    $query = "SELECT * FROM Accounts WHERE account_id = '$provided_account_id'";
-    $result = $link->query($query);
+    
+    $stmt = $link->prepare("SELECT * FROM Accounts WHERE account_id = ?");
+    $stmt->bind_param("s", $provided_account_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows === 1) {
         $row = $result->fetch_assoc();
@@ -45,16 +45,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Password matches, login successful
 
             // Check if the account_id exists in the Staffs table
-            $staff_query = "SELECT * FROM Staffs WHERE account_id = '$provided_account_id'";
-            $staff_result = $link->query($staff_query);
+            $staff_query = $link->prepare("SELECT * FROM Staffs WHERE account_id = ?");
+            $staff_query->bind_param("s", $provided_account_id);
+            $staff_query->execute();
+            $staff_result = $staff_query->get_result();
 
             if ($staff_result->num_rows === 1) {
                 $staff_row = $staff_result->fetch_assoc();
                 $logged_staff_name = $staff_row['staff_name']; // Get staff_name
+                $role = $staff_row['role']; // Get role
                 
                 // After successful login, store staff_name in session
                 $_SESSION['logged_account_id'] = $provided_account_id;
                 $_SESSION['logged_staff_name'] = $logged_staff_name;
+                $_SESSION['role'] = $role;
 
                 // Directly go to the pos panel upon successful login
                 header("Location: ../panel/pos-panel.php");
@@ -84,7 +88,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $direction = "login.php"; // Fail back to login
     }
 }
-
 
 // Close the database connection
 $link->close();
@@ -148,7 +151,7 @@ $link->close();
             font-size: 100px;
             line-height: 200px;
         }
-            .alert-box {
+        .alert-box {
             max-width: 300px;
             margin: 0 auto;
         }

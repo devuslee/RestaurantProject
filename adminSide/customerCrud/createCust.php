@@ -181,9 +181,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="form-group">
             <label for="phone_number" class="form-label">Phone Number:</label>
-            <input type="text" name="phone_number" placeholder="+60101231234" class="form-control <?php echo !$phone_numberErr ?: 'is-invalid'; ?>" id="phone_number" required value="<?php echo $phone_number; ?>"><br>
+            <input type="text" name="phone_number" placeholder="+60101231234" 
+                class="form-control <?php echo !empty($phone_numberErr) ? 'is-invalid' : ''; ?>" 
+                id="phone_number" required value="<?php echo $phone_number; ?>" 
+                pattern="^\+60[0-9]{9,10}$"
+                id="phone_number" required value="<?php echo $phone_number; ?>"><br>
             <div id="validationServerFeedback" class="invalid-feedback">
-                Please provide a valid phone number.
+                <?php echo $phone_numberErr ?: 'Please provide a valid phone number.'; ?>
             </div>
         </div>
 

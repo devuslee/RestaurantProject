@@ -1,5 +1,11 @@
 <?php
 session_start(); // Ensure session is started
+
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Manager') {
+    // If the user is not a manager, redirect them to the home page or an "unauthorized" page
+    header("Location: ../unauthorized.php");
+    exit();
+}
 ?>
 <?php  include '../inc/dashHeader.php'?>
 <?php

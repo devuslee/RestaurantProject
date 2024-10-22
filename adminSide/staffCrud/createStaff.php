@@ -112,10 +112,15 @@ $next_account_id = getNextAvailableAccountID($link);
             <span class="invalid-feedback"></span>
         </div>
 
-        <div class="form-group">
+        <div class="form-group mb-3">
             <label for="role">Role:</label>
-            <input type="text" name="role" id="role" placeholder="Waiter" required class="form-control <?php echo (!empty($role_err)) ? 'is-invalid' : ''; ?>"><br>
-            <span class="invalid-feedback"></span>
+            <select name="role" id="role" required class="form-control <?php echo (!empty($role_err)) ? 'is-invalid' : ''; ?>">
+                <option value="" disabled selected>Select Role</option>
+                <option value="Waiter" <?php echo (isset($_POST['role']) && $_POST['role'] == 'Waiter') ? 'selected' : ''; ?>>Waiter</option>
+                <option value="Chef" <?php echo (isset($_POST['role']) && $_POST['role'] == 'Chef') ? 'selected' : ''; ?>>Chef</option>
+                <option value="Manager" <?php echo (isset($_POST['role']) && $_POST['role'] == 'Manager') ? 'selected' : ''; ?>>Manager</option>
+            </select>
+            <span class="invalid-feedback"><?php echo $role_err; ?></span>
         </div>
         
         <div class="form-group">
@@ -148,9 +153,13 @@ $next_account_id = getNextAvailableAccountID($link);
 
         <div class="form-group">
             <label for="phone_number" class="form-label">Phone Number:</label>
-            <input type="text" name="phone_number" placeholder="+60101231234" class="form-control <?php echo !$phone_numberErr ?: 'is-invalid'; ?>" id="phone_number" required value="<?php echo $phone_number; ?>"><br>
+            <input type="text" name="phone_number" placeholder="+60101231234" 
+                class="form-control <?php echo !empty($phone_numberErr) ? 'is-invalid' : ''; ?>" 
+                id="phone_number" required value="<?php echo $phone_number; ?>" 
+                pattern="^\+60[0-9]{9,10}$"
+                id="phone_number" required value="<?php echo $phone_number; ?>"><br>
             <div id="validationServerFeedback" class="invalid-feedback">
-                Please provide a valid phone number.
+                <?php echo $phone_numberErr ?: 'Please provide a valid phone number.'; ?>
             </div>
         </div>
 
