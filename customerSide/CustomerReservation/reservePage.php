@@ -3,6 +3,9 @@ require_once '../config.php';
 
 // Start the session
 session_start();
+
+// Set the timezone to Malaysia Time (Asia/Kuala_Lumpur)
+date_default_timezone_set('Asia/Kuala_Lumpur');
 ?>
 
 <!DOCTYPE html>
@@ -41,8 +44,8 @@ session_start();
         if ($reservationStatus === 'success') {
             $message = "Reservation successful";
             $reservation_id = $_GET['reservation_id'] ?? null;
-            echo '<a class="nav-link" href="../home/home.php#hero">' .
-            '<h1 class="text-center" style="font-family: Copperplate; color: whitesmoke;">JOHNNY\'S</h1>' .
+            echo '<a class="nav-link" href="../home/home.php#hero">' . 
+            '<h1 class="text-center" style="font-family: Copperplate; color: whitesmoke;">JOHNNY\'S</h1>' . 
             '<span class="sr-only"></span></a>';
             echo '<script>alert("Table Successfully Reserved. Click OK to view your reservation receipt."); window.location.href = "reservationReceipt.php?reservation_id=' . $reservation_id . '";</script>';
         }
@@ -62,32 +65,32 @@ session_start();
                  
                     <form id="reservation-form" method="GET" action="availability.php"><br>
                         <div class="form-group">
-                        <label for="reservation_date" style="">Select Date</label><br>
-                        <input class="form-control" type="date" id="reservation_date" name="reservation_date" required>
+                            <label for="reservation_date" style="">Select Date</label><br>
+                            <input class="form-control" type="date" id="reservation_date" name="reservation_date" required>
                         </div>
                         <div class="form-group">
-                        <label for="reservation_time" style="">Available Reservation Times</label>
-                        <div id="availability-table">
-                            <?php
-                            $availableTimes = array();
-                            for ($hour = 10; $hour <= 20; $hour++) {
-                                for ($minute = 0; $minute < 60; $minute += 60) {
-                                    $time = sprintf('%02d:%02d:00', $hour, $minute);
-                                    $availableTimes[] = $time;
+                            <label for="reservation_time" style="">Available Reservation Times</label>
+                            <div id="availability-table">
+                                <?php
+                                $availableTimes = array();
+                                for ($hour = 10; $hour <= 20; $hour++) {
+                                    for ($minute = 0; $minute < 60; $minute += 60) {
+                                        $time = sprintf('%02d:%02d:00', $hour, $minute);
+                                        $availableTimes[] = $time;
+                                    }
                                 }
-                            }
-                            echo '<select name="reservation_time" id="reservation_time" style="width:10em;" class="form-control" >';
-                            echo '<option value="" selected disabled>Select a Time</option>';
-                            foreach ($availableTimes as $time) {
-                                echo "<option  value='$time'>$time</option>";
-                            }
-                            echo '</select>';
-                            if (isset($_GET['message'])) {
-                                $message = $_GET['message'];
-                                echo "<p>$message</p>";
-                            }
-                            ?>
-                        </div>
+                                echo '<select name="reservation_time" id="reservation_time" style="width:10em;" class="form-control" >';
+                                echo '<option value="" selected disabled>Select a Time</option>';
+                                foreach ($availableTimes as $time) {
+                                    echo "<option  value='$time'>$time</option>";
+                                }
+                                echo '</select>';
+                                if (isset($_GET['message'])) {
+                                    $message = $_GET['message'];
+                                    echo "<p>$message</p>";
+                                }
+                                ?>
+                            </div>
                         </div>
               
                         <input type="number" id="head_count" name="head_count" value=1 hidden required>
@@ -159,8 +162,8 @@ session_start();
 
     <!-- Add JavaScript to restrict past dates -->
     <script>
-        // Set the minimum date to today's date
-        const today = new Date().toISOString().split('T')[0];
+        // Set the minimum date to today's date in Malaysia Time
+        const today = new Date().toLocaleDateString('en-CA'); // Localize to 'YYYY-MM-DD'
         document.getElementById('reservation_date').setAttribute('min', today);
 
         // Additional validation before form submission (optional)
