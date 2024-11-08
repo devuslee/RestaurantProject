@@ -5,16 +5,13 @@ require_once '../config.php';
 session_start();
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-
-    <title>Customer Reservation </title>
+    <title>Customer Reservation</title>
     <style>
         /* Apply background image to the body */
         body {
@@ -34,10 +31,7 @@ session_start();
             text-align: left;
             width: 36.4em;
             flex-basis: 50%; /* Adjust the width of the columns as needed */
-           
         }
-
-            
     </style>
 </head>
 <body>
@@ -51,7 +45,6 @@ session_start();
             '<h1 class="text-center" style="font-family: Copperplate; color: whitesmoke;">JOHNNY\'S</h1>' .
             '<span class="sr-only"></span></a>';
             echo '<script>alert("Table Successfully Reserved. Click OK to view your reservation receipt."); window.location.href = "reservationReceipt.php?reservation_id=' . $reservation_id . '";</script>';
-
         }
         $head_count = $_GET['head_count'] ?? 1;
     ?>
@@ -164,14 +157,20 @@ session_start();
         </div>
     </div>
 
+    <!-- Add JavaScript to restrict past dates -->
     <script>
-        const viewDateInput = document.getElementById("reservation_date");
-        const makeDateInput = document.getElementById("reservation_date");
+        // Set the minimum date to today's date
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('reservation_date').setAttribute('min', today);
 
-        viewDateInput.addEventListener("change", function () {
-            makeDateInput.value = this.value;
+        // Additional validation before form submission (optional)
+        document.getElementById('reservation-form').addEventListener('submit', function(event) {
+            const reservationDate = document.getElementById('reservation_date').value;
+            if (new Date(reservationDate) < new Date()) {
+                event.preventDefault(); // Prevent form submission
+                alert("Reservation date cannot be in the past.");
+            }
         });
     </script>
 </body>
-
 </html>
