@@ -123,11 +123,17 @@ require_once '../posBackend/checkIfLoggedIn.php';
                             echo "<td>" . $row['item_description'] . "</td>";
                             echo "<td>";
                             // Modify link with the pencil icon
+                            if ($_SESSION['role'] != 'Manager') {
                              $update_sql = "UPDATE Menu SET item_name=?, item_type=?, item_category=?, item_price=?, item_description=? WHERE item_id=?";
                             echo '<a href="../menuCrud/updateItemVerify.php?id='. $row['item_id'] .'" title="Modify Record" data-toggle="tooltip"'
                                     . 'onclick="return confirm(\'Admin permission Required!\n\nAre you sure you want to Edit this Item?\')">'
                              . '<i class="fa fa-pencil" aria-hidden="true"></i></a>';
                             echo "</td>";
+                            } else {
+                                echo '<a href="../menuCrud/updateItem.php?id='. $row['item_id'] .'" title="Modify Record" data-toggle="tooltip">'
+                                    . '<i class="fa fa-pencil" aria-hidden="true"></i></a>';
+                                echo "</td>";
+                            }
 
                             /*echo "<td>";
                             $deleteSQL = "DELETE FROM items WHERE item_id = '" . $row['item_id'] . "';";
