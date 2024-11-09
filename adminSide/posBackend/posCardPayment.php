@@ -28,7 +28,6 @@ $reservation_id = $_GET['reservation_id'];
                                     <th>Price</th>
                                     <th>Quantity</th>
                                     <th>Total</th>
-                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -38,7 +37,7 @@ $reservation_id = $_GET['reservation_id'];
                            JOIN Menu m ON bi.item_id = m.item_id
                            WHERE bi.bill_id = '$bill_id'";
             $cart_result = mysqli_query($link, $cart_query);
-            $cart_total = 0;//cart total
+            $cart_total = 0; //cart total
             $tax = 0.1; // 10% tax rate
 
             if ($cart_result && mysqli_num_rows($cart_result) > 0) {
@@ -97,19 +96,10 @@ $reservation_id = $_GET['reservation_id'];
             <input type="hidden" name="reservation_id" value="<?php echo $reservation_id; ?>">
             <input type="hidden" name="GRANDTOTAL" value="<?php echo $tax * $cart_total + $cart_total; ?>">
 
-            <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="privacyCheckbox" required>
-                <label class="form-check-label" for="privacyCheckbox">I agree to the Private Data Terms and Conditions</label><br>
-                <small id="privacyHelp" class="form-text text-muted">By checking the box you understand we will save your credit card information.</small>
-            </div>
-
             <!-- Pay button -->
             <button type="submit" id="cardSubmit" class="btn btn-dark">Pay</button>
         </form>
     </div>
 </div>
 
-
 <?php include '../inc/dashFooter.php'; ?>
-
-         
