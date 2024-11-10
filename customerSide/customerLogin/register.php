@@ -65,7 +65,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = password_hash($PASSWORD, PASSWORD_BCRYPT);
     }
 
-
     // Validate phone number
     if (empty(trim($_POST["phone_number"]))) {
         $phone_number_err = "Please enter your phone number.";
@@ -79,7 +78,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($email_err) && empty($member_name_err) && empty($password_err) && empty($phone_number_err) && empty($data_privacy_err)) {
         // Start a transaction
         mysqli_begin_transaction($link);
-
 
         // Prepare an insert statement for Accounts table
         $sql_accounts = "INSERT INTO Accounts (email, password, phone_number, register_date) VALUES (?, ?, ?, NOW())";
@@ -130,17 +128,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 mysqli_stmt_close($stmt_memberships);
             }
         } else {
-                // Rollback the transaction if there was an error
-                mysqli_rollback($link);
-                echo "Oops! Something went wrong. Please try again later.";
+            // Rollback the transaction if there was an error
+            mysqli_rollback($link);
+            echo "Oops! Something went wrong. Please try again later.";
         }
 
-            // Close the statement for Accounts table
-            mysqli_stmt_close($stmt_accounts);
+        // Close the statement for Accounts table
+        mysqli_stmt_close($stmt_accounts);
     }
 }
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -249,32 +245,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <!-- Phone Number Field -->
             <div class="form-group">
-                <label for="phone_number" class="form-label">Phone Number:</label>
-                <input type="text" name="phone_number" placeholder="+60101231234" 
-                       class="form-control <?php echo !empty($phone_number_err) ? 'is-invalid' : ''; ?>" 
-                       id="phone_number" 
-                       value="<?php echo isset($_POST['phone_number']) ? htmlspecialchars($_POST['phone_number']) : ''; ?>" 
-                       pattern="^\+60[0-9]{9,10}$">
-                <div id="validationServerFeedback" class="invalid-feedback">
-                    <?php echo $phone_number_err ?: 'Please provide a valid phone number.'; ?>
-                </div>
+                <label>Phone Number</label>
+                <input type="text" name="phone_number" class="form-control" placeholder="Enter Phone Number"
+                       value="<?php echo isset($_POST['phone_number']) ? htmlspecialchars($_POST['phone_number']) : ''; ?>">
+                <span class="text-danger"><?php echo $phone_number_err; ?></span>
             </div>
 
-            <!-- Data Privacy Agreement Checkbox -->
+            <!-- Data Privacy Checkbox -->
             <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" name="data_privacy" id="data_privacy" required
-                       <?php echo isset($_POST['data_privacy']) ? 'checked' : ''; ?>>
-                <label class="form-check-label" for="data_privacy">
-                    I agree to the <a href="privacy_policy.php" target="_blank">Data Privacy Policy</a>.
-                </label>
+                <input type="checkbox" class="form-check-input" id="data_privacy" name="data_privacy">
+                <label class="form-check-label" for="data_privacy">I agree to the <a href="../privacyPolicy.html" target="_blank">Data Privacy Policy</a></label>
                 <span class="text-danger"><?php echo $data_privacy_err; ?></span>
             </div>
 
-            <!-- Register Button -->
-            <button style="background-color:black;" class="btn btn-dark" type="submit" name="register" value="Register">Register</button>
+            <!-- Submit Button -->
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary btn-block" value="Create Account">
+            </div>
+            <p>Already have an account? <a href="login.php">Login here</a></p>
         </form>
-
-        <p style="margin-top:1em; color:white;">Already have an account? <a href="../customerLogin/login.php">Proceed to Login</a></p>
     </div>
     </div>
 </body>

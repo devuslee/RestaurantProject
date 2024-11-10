@@ -157,15 +157,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="form-group">
                     <label>Email</label>
                     <input type="email" name="email" class="form-control" placeholder="Enter User Email" 
-                           value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" required>
-                    <span class="text-danger"><?php echo $email_err; ?></span>
+                           value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8') : ''; ?>" required>
+                    <span class="text-danger"><?php echo isset($email_err) ? htmlspecialchars($email_err, ENT_QUOTES, 'UTF-8') : ''; ?></span>
                 </div>
 
                 <!-- Password Field -->
                 <div class="form-group">
                     <label>Password</label>
                     <input type="password" name="password" class="form-control" placeholder="Enter User Password" required>
-                    <span class="text-danger"><?php echo $password_err; ?></span>
+                    <span class="text-danger"><?php echo isset($password_err) ? htmlspecialchars($password_err, ENT_QUOTES, 'UTF-8') : ''; ?></span>
                 </div>
 
                 <!-- Login Button -->

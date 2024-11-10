@@ -18,7 +18,8 @@ $sides = mysqli_fetch_all($resultsides, MYSQLI_ASSOC);
 session_start();
 if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
     echo '<div class="user-profile">';
-    echo 'Welcome, ' . $_SESSION["member_name"] . '!';
+    // Sanitize the user name before displaying it
+    echo 'Welcome, ' . htmlspecialchars($_SESSION["member_name"]) . '!';
     echo '<a href="../customerProfile/profile.php">Profile</a>';
     echo '</div>';
 }
@@ -102,8 +103,9 @@ if ($isLoggedIn && $account_id != null) {
         $row = mysqli_fetch_assoc($result);
         
         if ($row) {
-            $member_name = $row['member_name'];
-            $points = $row['points'];
+            // Sanitize member_name and points before displaying
+            $member_name = htmlspecialchars($row['member_name']);
+            $points = htmlspecialchars($row['points']);
             $vip_status = ($points >= 1000) ? 'VIP' : 'Regular';
             $vip_tooltip = ($vip_status === 'Regular') ? ($points < 1000 ? (1000 - $points) . ' points to VIP ' : 'You are eligible for VIP') : '';
             
