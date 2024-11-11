@@ -65,14 +65,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = password_hash($PASSWORD, PASSWORD_BCRYPT);
     }
 
-    // Validate phone number
-    if (empty(trim($_POST["phone_number"]))) {
-        $phone_number_err = "Please enter your phone number.";
-    } else if(!is_numeric(trim($_POST['phone_number']))){
-        $phone_number_err = "Only enter numeric values!";
-    } else {
-        $phone_number = trim($_POST["phone_number"]);
+       // Validate phone number
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (empty(trim($_POST["phone_number"]))) {
+            $phone_number_err = "Please enter your phone number.";
+        } elseif (!preg_match("/^\+60[0-9]{9,10}$/", trim($_POST["phone_number"]))) {
+            // Use regex to ensure that the phone number matches the pattern "+60" followed by 9-10 digits
+            $phone_number_err = "Please enter a valid phone number (e.g. +60101231234).";
+        } else {
+            $phone_number = trim($_POST["phone_number"]);
+        }
     }
+    ?>
 
     // Check input errors before inserting into the database
     if (empty($email_err) && empty($member_name_err) && empty($password_err) && empty($phone_number_err) && empty($data_privacy_err)) {
