@@ -76,7 +76,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $phone_number = trim($_POST["phone_number"]);
         }
     }
-    ?>
 
     // Check input errors before inserting into the database
     if (empty($email_err) && empty($member_name_err) && empty($password_err) && empty($phone_number_err) && empty($data_privacy_err)) {
