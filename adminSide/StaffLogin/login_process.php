@@ -4,10 +4,32 @@ require_once "../config.php";
 
 $provided_account_id = "";
 
+// Log user login attempt
+function logUserAction($user_id, $username, $action, $page_url, $start_session_date = null, $end_session_date = null) {
+    global $link;
+
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+    $user_agent = $_SERVER['HTTP_USER_AGENT'];
+    $start_session_date = $start_session_date ?? date("Y-m-d H:i:s");
+
+    // Insert log with optional end session date for logout
+    $stmt = $link->prepare("INSERT INTO user_logs (user_id, username, action, page_url, ip_address, user_agent, start_session_date, end_session_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("isssssss", $user_id, $username, $action, $page_url, $ip_address, $user_agent, $start_session_date, $end_session_date);
+    $stmt->execute();
+    $stmt->close();
+}
+
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = "Customer";
+
     // User-provided input
     $provided_staff_id = $_POST['account_id'];
+
+        // User-provided input
+        $provided_account_id = $_POST['account_id'];
+        $provided_password = $_POST['password'];
+    
 
     // Check if password is provided
     if (empty(trim($_POST["password"]))) {
@@ -54,14 +76,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $staff_row = $staff_result->fetch_assoc();
                 $logged_staff_name = $staff_row['staff_name']; // Get staff_name
                 $role = $staff_row['role']; // Get role
+                $username = $staff_row['staff_name'];
                 
+                logUserAction($provided_account_id, $username, 'Login successful', 'login.php', $session_time);
+
                 // After successful login, store staff_name in session
                 $_SESSION['logged_account_id'] = $provided_account_id;
                 $_SESSION['logged_staff_name'] = $logged_staff_name;
                 $_SESSION['role'] = $role;
 
                 // Directly go to the pos panel upon successful login
-                header("Location: ../panel/pos-panel.php");
+                if ($role == "Chef") {
+                    header("Location: ../panel/kitchen-panel.php");
+                    exit;
+                } else {
+                    header("Location: ../panel/pos-panel.php");
+                }
                 exit;
             } else {
                 // Staff ID not found in Staffs table
@@ -70,6 +100,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $cardClass = "alert-danger";
                 $bgColor = "#FFA7A7"; // Custom background color for error
                 $direction = "login.php"; // Fail, go back to login
+
+                logUserAction($provided_account_id, $username, 'Login failed - Staff ID not found', 'login.php', $session_time);
+           
             }      
         } else {
             // Incorrect password
@@ -78,6 +111,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $cardClass = "alert-danger";
             $bgColor = "#FFA7A7"; // Custom background color for error
             $direction = "login.php"; // Fail back to login
+
+            logUserAction($provided_account_id, $username, 'Login failed - Staff ID not found', 'login.php', $session_time);
+   
         }
     } else {
         // Account ID not found
